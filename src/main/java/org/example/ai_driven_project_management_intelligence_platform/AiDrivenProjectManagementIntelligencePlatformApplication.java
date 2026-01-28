@@ -1,9 +1,10 @@
 package org.example.ai_driven_project_management_intelligence_platform;
 
+import org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { MybatisAutoConfiguration.class })
 public class AiDrivenProjectManagementIntelligencePlatformApplication {
 
     public static void main(String[] args) {
@@ -11,3 +12,4 @@ public class AiDrivenProjectManagementIntelligencePlatformApplication {
     }
 
 }
+
