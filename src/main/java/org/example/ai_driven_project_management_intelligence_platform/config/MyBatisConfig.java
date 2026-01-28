@@ -28,6 +28,9 @@ public class MyBatisConfig {
                 new org.apache.ibatis.session.Configuration();
         mybatisConfig.setMapUnderscoreToCamelCase(true);
         bean.setConfiguration(mybatisConfig);
+        bean.setMapperLocations(new org.springframework.core.io.Resource[]{
+            new org.springframework.core.io.ClassPathResource("mapper/ProjectMapper.xml")
+        });
         return bean.getObject();
     }
 

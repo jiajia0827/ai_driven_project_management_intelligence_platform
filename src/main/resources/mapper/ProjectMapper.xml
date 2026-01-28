@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.example.ai_driven_project_management_intelligence_platform.mapper.ProjectMapper">
+
+    <!-- 项目实体映射 -->
+    <resultMap id="ProjectResultMap" type="org.example.ai_driven_project_management_intelligence_platform.entity.Project">
+        <id property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="projectDesc" column="project_desc"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="status" column="status"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <!-- 插入新项目 -->
+    <insert id="insert" parameterType="org.example.ai_driven_project_management_intelligence_platform.entity.Project" useGeneratedKeys="true" keyProperty="projectId">
+        INSERT INTO project (
+            project_name,
+            project_desc,
+            start_time,
+            end_time,
+            status,
+            creator_id,
+            create_time,
+            update_time
+        ) VALUES (
+            #{projectName},
+            #{projectDesc},
+            #{startTime},
+            #{endTime},
+            #{status},
+            #{creatorId},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <!-- 根据ID查询项目 -->
+    <select id="selectById" parameterType="java.lang.Integer" resultMap="ProjectResultMap">
+        SELECT 
+            project_id,
+            project_name,
+            project_desc,
+            start_time,
+            end_time,
+            status,
+            creator_id,
+            create_time,
+            update_time
+        FROM project
+        WHERE project_id = #{projectId}
+    </select>
+
+    <!-- 根据名称查询项目 -->
+    <select id="selectByName" parameterType="java.lang.String" resultMap="ProjectResultMap">
+        SELECT 
+            project_id,
+            project_name,
+            project_desc,
+            start_time,
+            end_time,
+            status,
+            creator_id,
+            create_time,
+            update_time
+        FROM project
+        WHERE project_name = #{projectName}
+    </select>
+
+
+    <!-- 查询项目列表（当前用户参与的项目） -->
+    <select id="selectProjectList" resultType="org.example.ai_driven_project_management_intelligence_platform.dto.ProjectListResponseDTO$ProjectItem">
+        SELECT 
+            p.project_id,
+            p.project_name,
+            p.project_desc,
+            DATE(p.start_time) as startTime,
+            DATE(p.end_time) as endTime,
+            p.status,
+            CASE p.status
+                WHEN 0 THEN '未开始'
+                WHEN 1 THEN '进行中'
+                WHEN 2 THEN '已完成'
+                WHEN 3 THEN '延期'
+                ELSE '未知状态'
+            END as statusName,
+            su.real_name as creatorName,
+            p.create_time
+        FROM project p
+        LEFT JOIN sys_user su ON p.creator_id = su.user_id
+        WHERE 1=1
+        <if test="userId != null">
+            AND p.creator_id = #{userId}
+        </if>
+        <if test="status != null">
+            AND p.status = #{status}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY p.create_time DESC
+    </select>
+
+</mapper>
